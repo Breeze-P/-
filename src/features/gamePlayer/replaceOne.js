@@ -24,7 +24,6 @@ class GonggeDraw extends PureComponent {
 
             message: null,
         }
-        this.myCount = this.state.oreNum / 200;
 
         this.stepCount = getGift().length
 
@@ -43,7 +42,7 @@ class GonggeDraw extends PureComponent {
                 message: `抽奖进行中，请稍后再试!`,
             },
             error: {
-                message: `抽奖次数不足,抓紧去完成任务获得抽奖资格吧~`,
+                message: `矿石不够，快去赚取吧~`,
             }
         }
     }
@@ -57,9 +56,9 @@ class GonggeDraw extends PureComponent {
     }
 
     startDraw = () => {
-        let { isDrawing, myCount } = this.state
+        let { isDrawing, oreNum } = this.state;
         if (isDrawing) return this.alertMessage('warning')
-        if (myCount <= 0) return this.alertMessage('error')
+        if (oreNum < 200) return this.alertMessage('error')
         // api
         this.mockApi()
     }
@@ -72,7 +71,7 @@ class GonggeDraw extends PureComponent {
             }
 
             if (result.ret_code === '0') {
-                let oreNum = this.state.oreNum - 1
+                let oreNum = this.state.oreNum - 200
                 this.endStopIndex = result.endStopIndex
 
                 this.setState({ isDrawing: true, oreNum }, this.startRun)
@@ -126,7 +125,6 @@ class GonggeDraw extends PureComponent {
                 showDialog: true,
                 gotGift
             })
-            this.alertMessage('success')
         }
     }
 
@@ -162,7 +160,9 @@ class GonggeDraw extends PureComponent {
                         <div className="message-content">
                             {message}
                         </div>
-                        <button className="alert-close" onClick={this.removeAlert}/>
+                        <button className="alert-close" onClick={this.removeAlert}>
+                            ×
+                        </button>
                     </div>
                 ) : null}
 
@@ -172,45 +172,19 @@ class GonggeDraw extends PureComponent {
                         当前矿石数：
                         {this.state.oreNum}
                     </div>
-                    {showDialog ? (
-                        <div className="got-gift-show">
-                            <button className="got-close" onClick={this.hideGotDialog} />
-                            <img className="got-icon" src={gotGift.icon} alt="got icon"/>
-                            <div className="got-name">{gotGift.name}</div>
-                        </div>
-                    ) : null}
                     <div className="turntable-box">
-                        {/*<div className="upper-border up-down">*/}
-                        {/*    <div className="dot vertex"/>*/}
-                        {/*    <div className="dot border left-border-dot"/>*/}
-                        {/*    <div className="dot white"/>*/}
-                        {/*    <div className="dot border right-border-dot"/>*/}
-                        {/*    <div className="dot vertex"/>*/}
-                        {/*</div>*/}
-                        {/*<div className="lower-border up-down">*/}
-                        {/*    <div className="dot vertex"/>*/}
-                        {/*    <div className="dot border left-border-dot"/>*/}
-                        {/*    <div className="dot white"/>*/}
-                        {/*    <div className="dot border right-border-dot"/>*/}
-                        {/*    <div className="dot vertex"/>*/}
-                        {/*</div>*/}
-                        {/*<div className="left-border left-right">*/}
-                        {/*    <div className="dot vertex"/>*/}
-                        {/*    <div className="dot border left-border-dot"/>*/}
-                        {/*    <div className="dot white"/>*/}
-                        {/*    <div className="dot border right-border-dot"/>*/}
-                        {/*    <div className="dot vertex"/>*/}
-                        {/*</div>*/}
-                        {/*<div className="right-border left-right">*/}
-                        {/*    <div className="dot vertex"/>*/}
-                        {/*    <div className="dot border left-border-dot"/>*/}
-                        {/*    <div className="dot white"/>*/}
-                        {/*    <div className="dot border right-border-dot"/>*/}
-                        {/*    <div className="dot vertex"/>*/}
-                        {/*</div>*/}
-                        <div className="item-container">
+                        {showDialog ? (
+                            <div className="got-gift-show">
+                                <div className="show-show">
+                                    <button className="got-close" onClick={this.hideGotDialog} />
+                                    <img className="got-icon" src={gotGift.icon} alt="got icon"/>
+                                    <div className="got-name">{gotGift.name}</div>
+                                </div>
+                            </div>
+                        ) : null}
+                        <div className={`item-container grid9`}>
                             {giftList.map((item, index) => (
-                                <div className={`item${(index === activeIndex && isDrawing) ? " active-item": ""}`} key={index}>
+                                <div className={`item${(index === activeIndex && isDrawing) ? " active-item": ""} num${index}`} key={index}>
                                     <img className="item-icon" src={item.icon} alt="item icon"/>
                                     <div className="item-name">
                                         {item.name}
@@ -218,7 +192,12 @@ class GonggeDraw extends PureComponent {
                                 </div>
                             ))}
                             <div className="item-lottery" onClick={this.startDraw}>
-                                {(isDrawing) ? '抽奖中...': "开始"}
+                                <div className="start-button">
+                                    {(isDrawing) ? '抽奖中...': "开始"}
+                                </div>
+                                <div className="text">
+                                    200矿石/次
+                                </div>
                             </div>
                         </div>
                     </div>
