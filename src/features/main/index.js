@@ -1,13 +1,12 @@
 import React from 'react';
-// import GamePlayer from "../gamePlayer";
-import GonggeDraw from "../gamePlayer/replaceOne";
+import GamePlayer from "../gamePlayer";
 
 function Home() {
     return (
         <main className="lottery_wrapper">
             {/*<Title/>*/}
             <div className="game-container">
-                <GonggeDraw/>
+                <GamePlayer/>
                 {/*<MessageTable/>*/}
             </div>
         </main>

@@ -1,179 +1,222 @@
-import React, { useState, useEffect } from 'react';
+import React, { PureComponent } from 'react';
 import getGift from "../../data_api";
+import './style.css';
 
-function getRandomNum(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min)
+function getResNum(giftList) {
+    let totalWeight = 0;
+    giftList.map((item) => {
+        totalWeight += item.weight;
+        return null;
+    })
+    let reed = Math.floor(Math.random() * totalWeight);
+    let res = 0;
+    while (reed >= 0) {
+        reed -= giftList[res].weight;
+        res++;
+    }
+    return res - 1;
 }
 
-const GamePlayer = () => {
-    const [ giftList ] = useState(getGift(0));
-    const [ oreNum, setOreNum ] = useState(1000);
-    const [ activeIndex, setActiveIndex ] = useState(0);
-    const [ isDrawing, setIsDrawing ] = useState(false);
-    const [ showDialog, setShowDialog ] = useState(false);
-    const [ gotGift, setGotGift ] = useState(null);
-    const [ message, setMassage ] = useState(null);
+class GamePlayer extends PureComponent {
+    constructor(props) {
+        super(props);
+        this.state = {
+            giftList: getGift(),
 
-    let timer = null;
+            oreNum: 1000,
 
-    useEffect(() => {
-        return () => {
-            timer && clearTimeout(timer);
-            console.log("顺序");
-        }
-    }, [giftList, timer]);
-    console.log(oreNum + 1);
+            activeIndex: 0,
 
-    const myCount = oreNum / 200;   // 一次消耗200矿石
+            isDrawing: false,
 
-    const stepCount = (giftList) ? giftList.length: 0;
+            showDialog: false,
 
-    let endStopIndex = 0;    // 服务端获取
+            gotGift: null,
 
-    const speed = [336, 168, 84, 42, 42, 42];
+            message: null,
+        };
 
-    const messageInfo = {
-        success: {
-            message: `恭喜您中奖了!`
-        },
-        warning: {
-            message: `抽奖进行中，请稍后再试!`
-        },
-        error: {
-            message: `矿石数不足,抓紧去完成任务获得抽奖资格吧~`
-        }
+        this.stepCount = getGift().length;
+
+        this.endStopIndex = 0;
+
+        this.speed = [336, 168, 84, 42, 42, 42];
+
+        this.timer = null;
+
+        //alert message list
+        this.messageInfo = {
+            success: {
+                message: `恭喜您中奖了!`,
+            },
+            warning: {
+                message: `抽奖进行中，请稍后再试!`,
+            },
+            error: {
+                message: `矿石不够，快去赚取吧~`,
+            }
+        };
     }
 
-    const alertMessage = (messageType) => {
-        let { message } = messageInfo[messageType]
-        setMassage(message)
+    componentDidMount() {
+        console.log(`mounted`);
     }
 
-    const mockApi = () => {
-        // 假装发了一个ajax请求：success,catch,error
+    componentWillUnmount() {
+        this.timer && clearTimeout(this.timer);
+    }
+
+    startDraw = () => {
+        let { isDrawing, oreNum } = this.state;
+        if (isDrawing) return this.alertMessage('warning');
+        if (oreNum < 200) return this.alertMessage('error');
+        // api
+        this.mockApi();
+    }
+
+    mockApi = () => {
         setTimeout(() => {
             let result = {
                 ret_code: '0', //success
-                endStopIndex: getRandomNum(0, 8)
-            }
-            // 是否正抽可能还需要接口来限制：如是否绑定手机号、、
+                endStopIndex: getResNum(this.state.giftList)
+            };
+
             if (result.ret_code === '0') {
-                endStopIndex = result.endStopIndex
-                // 开启转盘,開啟限制再次點擊抽獎
-                setIsDrawing(true);
-                setOreNum(oreNum - 200);
-                console.log(oreNum + 2);
-                startRun();
-                console.log(`最終要停在:${endStopIndex}`)
+                let oreNum = this.state.oreNum - 200;
+                this.endStopIndex = result.endStopIndex;
+
+                this.setState({ isDrawing: true, oreNum }, this.startRun);
+                console.log(`stop at: ${this.endStopIndex}`);
             } else if (result.ret_code === 'error') {
-                setMassage('error');
+                this.setState({
+                    messageType: 'error',
+                });
             }
-        }, 300)
+        }, 300);
     }
 
-    const startDraw = () => {
-        // 抽奖进行中禁止点击，抽奖次数<=0禁止点击
-        if (isDrawing) return alertMessage('warning')
-        if (myCount <= 0) return alertMessage('error')
-        // api
-        mockApi()
+    startRun() {
+        // all the circle
+        let leftRound = this.speed.length - 1;
+        this.addOneStep({ isContinue: true, leftRound });
     }
 
-    const addOneStep = params => {
-        let activeIndexTemp = activeIndex
-        let { isContinue, leftRound } = params
-        activeIndexTemp += 1
+    /*
+      * What's up?
+      */
+    addOneStep = params => {
+        let { activeIndex } = this.state;
+        let { isContinue, leftRound } = params;
+        activeIndex += 1;
         if (isContinue) {
-            // 如果到超过奖品个数，重置为0
-            if (activeIndexTemp >= stepCount) {
-                console.log(`转了${leftRound}圈`)
-                leftRound -= 1
-                activeIndexTemp = 0
+            if (activeIndex > this.stepCount) {
+                console.log(`run ${leftRound} circles.`);
+                leftRound -= 1;
+                activeIndex = 0;
             }
-            // 如果已经到最后一圈了  且  已经到了指定要中奖的位置了  就不需要继续了
-            if (leftRound === 0 && activeIndexTemp === endStopIndex) {
-                console.log(`現在停在:${endStopIndex}`)
-                isContinue = false
+            // stop if in the target
+            if (leftRound === 0 && activeIndex === this.endStopIndex) {
+                console.log(`now stop: ${this.endStopIndex}`);
+                isContinue = false;
             }
-            setActiveIndex(activeIndexTemp);
-            setOreNum(oreNum - 200);
-            console.log(activeIndex);
-            console.log(oreNum);
+            this.setState({ activeIndex });
             const nextParams = {
                 isContinue,
                 leftRound
-            }
-            timer = setTimeout(() => {
-                addOneStep(nextParams)
-            }, speed[leftRound])
+            };
+            this.timer = setTimeout(() => {
+                this.addOneStep(nextParams);
+            }, this.speed[leftRound]);
         } else {
-            clearTimeout(timer)
-            timer = null
-            let gotGift = giftList[endStopIndex - 1]
-            setIsDrawing(false);
-            setShowDialog(true);
-            setGotGift(gotGift);
-            alertMessage('success')
+            clearTimeout(this.timer);
+            this.timer = null;
+            let gotGift = this.state.giftList[this.endStopIndex];
+
+            this.setState({
+                isDrawing: false,
+                showDialog: true,
+                gotGift
+            });
         }
     }
-    const startRun = () => {
-        // 总共需要转的圈数
-        let leftRound = speed.length - 1
-        addOneStep({ isContinue: true, leftRound })
+
+    alertMessage(messageType) {
+        let { message } = this.messageInfo[messageType];
+        this.setState({ message });
     }
 
-    const removeAlert = () => {
-        setMassage(null);
+    removeAlert = () => {
+        this.setState({ message: null });
     }
 
-    const hideGotDialog = () => {
-        setShowDialog(false);
+    hideGotDialog = () => {
+        this.setState({ showDialog: false });
     }
 
-    return (
-        <div className="draw-box">
-            {/* tipsBox */}
-            {message ? (
-                <div className="message-wrap">
-                    <div className="message-content">
-                        {message}
-                    </div>
-                    <button className="alert-close" onClick={removeAlert}/>
-                </div>
-            ) : null}
-
-            {/* main */}
-            <div className="lottery-wrap">
-                <div className="lottery-header">
-                    当前矿石数：
-                    {oreNum}
-                </div>
-                <div className="lottery">
-                    {showDialog ? (
-                        <div className="got-gift-show">
-                            <button className="got-close" onClick={hideGotDialog} />
-                            <img className="got-icon" src={gotGift.icon} alt="got icon"/>
-                            <div className="got-name">{gotGift.name}</div>
+    render() {
+        // readonly
+        const {
+            giftList,
+            activeIndex,
+            isDrawing,
+            showDialog,
+            gotGift,
+            message,
+        } = this.state;
+        return (
+            <div className="draw-box">
+                <img className="background" src="https://lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/img/background.f2441ca.png" alt="background"/>
+                {/* tipsBox */}
+                {message ? (
+                    <div className="message-wrap">
+                        <div className="message-content">
+                            {message}
                         </div>
-                    ) : null}
+                        <button className="alert-close" onClick={this.removeAlert}>
+                            ×
+                        </button>
+                    </div>
+                ) : null}
 
-                    <div className="item-container">
-                        {giftList.map((item, index) => (
-                            <div className={`item${(index === activeIndex) ? " active-item": ""}`} key={index}>
-                                <img className="item-icon" src={item.icon} alt="item icon"/>
-                                <div className="item-name">
-                                    {item.name}
+                {/* main */}
+                <div className="lottery-wrap">
+                    <div className="lottery-header">
+                        当前矿石数：
+                        {this.state.oreNum}
+                    </div>
+                    <div className="turntable-box">
+                        {showDialog ? (
+                            <div className="got-gift-show">
+                                <div className="show-show">
+                                    <button className="got-close" onClick={this.hideGotDialog} />
+                                    <img className="got-icon" src={gotGift.icon} alt="got icon"/>
+                                    <div className="got-name">{gotGift.name}</div>
                                 </div>
                             </div>
-                        ))}
-                        <div className="item-lottery" onClick={startDraw}>
-                            {(isDrawing) ? '抽奖中...': "开始"}
+                        ) : null}
+                        <div className={`item-container grid9`}>
+                            {giftList.map((item, index) => (
+                                <div className={`item${(index === activeIndex && isDrawing) ? " active-item": ""} num${index}`} key={index}>
+                                    <img className="item-icon" src={item.icon} alt="item icon"/>
+                                    <div className="item-name">
+                                        {item.name}
+                                    </div>
+                                </div>
+                            ))}
+                            <div className="item-lottery" onClick={this.startDraw}>
+                                <div className="start-button">
+                                    {(isDrawing) ? '抽奖中...': "开始"}
+                                </div>
+                                <div className="text">
+                                    200矿石/次
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    )
+        )
+    }
 }
 
 export default GamePlayer;
