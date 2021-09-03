@@ -32,6 +32,7 @@
 
 ### 项目部署
 
+git clone git@github.com:Breeze-P/turntable_demo.git
 
 npm install
 
