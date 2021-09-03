@@ -1,5 +1,21 @@
 # turntable项目文档
 
+
+### 项目部署
+
+在线体验：https://turntable.web.cloudendpoint.cn
+
+本地获取：
+
+git clone git@github.com:Breeze-P/turntable_demo.git
+
+npm install
+
+npm run start
+
+npm run build
+
+
 ### 项目实现功能
 
 基本实现项目作业基础功能需求：
@@ -30,12 +46,3 @@
 
 
 
-### 项目部署
-
-git clone git@github.com:Breeze-P/turntable_demo.git
-
-npm install
-
-npm run start
-
-npm run build
