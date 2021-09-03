@@ -31,3 +31,10 @@
 
 
 ### 项目部署
+
+
+npm install
+
+npm run start
+
+npm run build
