@@ -155,6 +155,7 @@ class GonggeDraw extends PureComponent {
         } = this.state
         return (
             <div className="draw-box">
+                <img className="background" src="https://lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/img/background.f2441ca.png" alt="background"/>
                 {/* tipsBox */}
                 {message ? (
                     <div className="message-wrap">
@@ -171,18 +172,45 @@ class GonggeDraw extends PureComponent {
                         当前矿石数：
                         {this.state.oreNum}
                     </div>
-                    <div className="lottery">
-                        {showDialog ? (
-                            <div className="got-gift-show">
-                                <button className="got-close" onClick={this.hideGotDialog} />
-                                <img className="got-icon" src={gotGift.icon} alt="got icon"/>
-                                <div className="got-name">{gotGift.name}</div>
-                            </div>
-                        ) : null}
-
+                    {showDialog ? (
+                        <div className="got-gift-show">
+                            <button className="got-close" onClick={this.hideGotDialog} />
+                            <img className="got-icon" src={gotGift.icon} alt="got icon"/>
+                            <div className="got-name">{gotGift.name}</div>
+                        </div>
+                    ) : null}
+                    <div className="turntable-box">
+                        {/*<div className="upper-border up-down">*/}
+                        {/*    <div className="dot vertex"/>*/}
+                        {/*    <div className="dot border left-border-dot"/>*/}
+                        {/*    <div className="dot white"/>*/}
+                        {/*    <div className="dot border right-border-dot"/>*/}
+                        {/*    <div className="dot vertex"/>*/}
+                        {/*</div>*/}
+                        {/*<div className="lower-border up-down">*/}
+                        {/*    <div className="dot vertex"/>*/}
+                        {/*    <div className="dot border left-border-dot"/>*/}
+                        {/*    <div className="dot white"/>*/}
+                        {/*    <div className="dot border right-border-dot"/>*/}
+                        {/*    <div className="dot vertex"/>*/}
+                        {/*</div>*/}
+                        {/*<div className="left-border left-right">*/}
+                        {/*    <div className="dot vertex"/>*/}
+                        {/*    <div className="dot border left-border-dot"/>*/}
+                        {/*    <div className="dot white"/>*/}
+                        {/*    <div className="dot border right-border-dot"/>*/}
+                        {/*    <div className="dot vertex"/>*/}
+                        {/*</div>*/}
+                        {/*<div className="right-border left-right">*/}
+                        {/*    <div className="dot vertex"/>*/}
+                        {/*    <div className="dot border left-border-dot"/>*/}
+                        {/*    <div className="dot white"/>*/}
+                        {/*    <div className="dot border right-border-dot"/>*/}
+                        {/*    <div className="dot vertex"/>*/}
+                        {/*</div>*/}
                         <div className="item-container">
                             {giftList.map((item, index) => (
-                                <div className={`item${(index === activeIndex) ? " active-item": ""}`} key={index}>
+                                <div className={`item${(index === activeIndex && isDrawing) ? " active-item": ""}`} key={index}>
                                     <img className="item-icon" src={item.icon} alt="item icon"/>
                                     <div className="item-name">
                                         {item.name}
