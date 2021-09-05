@@ -1,11 +1,10 @@
 import './App.css';
-// import Home from './features/main/index'
-import BackStage from "./features/backStage";
+import Home from './features/main/index'
 
 function App() {
   return (
     <div className="App">
-      <BackStage/>
+      <Home/>
     </div>
   );
 }

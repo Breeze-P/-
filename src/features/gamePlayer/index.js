@@ -2,6 +2,40 @@ import React, { PureComponent } from 'react';
 import getGift from "../../data_api";
 import './style.css';
 
+/* 抽奖云函数
+module.exports = async function(params, context) {
+  // 获取数据库数据
+  let myTable = inspirecloud.db.table('gifts');
+  let items = await myTable.where().find();
+  let giftList = items.map(
+    (item) => {
+      return {
+        name: item.name,
+        icon: item.icon,
+        weight: item.weight
+      };
+    }
+  );
+
+  // 依据爆率随机抽取一个奖品
+  let totalWeight = 0;
+    giftList.map((item) => {
+        totalWeight += item.weight;
+        return null;
+    })
+    let reed = Math.floor(Math.random() * totalWeight);
+    let res = 0;
+    while (reed >= 0) {
+        reed -= giftList[res].weight;
+        res++;
+    }
+    return {
+      giftList: giftList,
+      endStopIndex: res - 1
+    };
+}
+ */
+
 class GamePlayer extends PureComponent {
     constructor(props) {
         super(props);
