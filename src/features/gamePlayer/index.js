@@ -2,30 +2,17 @@ import React, { PureComponent } from 'react';
 import getGift from "../../data_api";
 import './style.css';
 
-function getResNum(giftList) {
-    let totalWeight = 0;
-    giftList.map((item) => {
-        totalWeight += item.weight;
-        return null;
-    })
-    let reed = Math.floor(Math.random() * totalWeight);
-    let res = 0;
-    while (reed >= 0) {
-        reed -= giftList[res].weight;
-        res++;
-    }
-    return res - 1;
-}
-
 class GamePlayer extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
-            giftList: getGift(),
+            giftList: [],
 
             oreNum: 1000,
 
             activeIndex: 0,
+
+            endStopIndex: 0,
 
             isDrawing: false,
 
@@ -37,8 +24,6 @@ class GamePlayer extends PureComponent {
         };
 
         this.stepCount = getGift().length;
-
-        this.endStopIndex = 0;
 
         this.speed = [336, 168, 84, 42, 42, 42];
 
@@ -59,7 +44,20 @@ class GamePlayer extends PureComponent {
     }
 
     componentDidMount() {
-        console.log(`mounted`);
+        fetch("https://qc72tz.fn.thelarkcloud.com/getResult").then(
+            res => {
+                return res.json()
+            }
+        ).then(
+            data => {
+                this.setState({
+                    giftList: data.giftList,
+                    endStopIndex: data.endStopIndex
+                });
+            }
+        ).catch((e) => {
+            console.log(e);
+        });
     }
 
     componentWillUnmount() {
@@ -71,28 +69,29 @@ class GamePlayer extends PureComponent {
         if (isDrawing) return this.alertMessage('warning');
         if (oreNum < 200) return this.alertMessage('error');
         // api
-        this.mockApi();
+        this.mockApi(oreNum - 200);
     }
 
-    mockApi = () => {
-        setTimeout(() => {
-            let result = {
-                ret_code: '0', //success
-                endStopIndex: getResNum(this.state.giftList)
-            };
-
-            if (result.ret_code === '0') {
-                let oreNum = this.state.oreNum - 200;
-                this.endStopIndex = result.endStopIndex;
-
-                this.setState({ isDrawing: true, oreNum }, this.startRun);
-                console.log(`stop at: ${this.endStopIndex}`);
-            } else if (result.ret_code === 'error') {
-                this.setState({
-                    messageType: 'error',
-                });
+    mockApi = (oreNum) => {
+        fetch("https://qc72tz.fn.thelarkcloud.com/getResult").then(
+            res => {
+                return res.json()
             }
-        }, 300);
+        ).then(
+            data => {
+                this.setState({
+                    giftList: data.giftList,
+                    endStopIndex: data.endStopIndex,
+                    isDrawing: true,
+                    oreNum: oreNum
+                },
+                this.startRun);
+
+                console.log(`stop at: ${this.state.endStopIndex}`);
+            }
+        ).catch((e) => {
+            console.log(e);
+        });
     }
 
     startRun() {
@@ -115,8 +114,8 @@ class GamePlayer extends PureComponent {
                 activeIndex = 0;
             }
             // stop if in the target
-            if (leftRound === 0 && activeIndex === this.endStopIndex) {
-                console.log(`now stop: ${this.endStopIndex}`);
+            if (leftRound === 0 && activeIndex === this.state.endStopIndex) {
+                console.log(`now stop: ${this.state.endStopIndex}`);
                 isContinue = false;
             }
             this.setState({ activeIndex });
@@ -130,7 +129,7 @@ class GamePlayer extends PureComponent {
         } else {
             clearTimeout(this.timer);
             this.timer = null;
-            let gotGift = this.state.giftList[this.endStopIndex];
+            let gotGift = this.state.giftList[this.state.endStopIndex];
 
             this.setState({
                 isDrawing: false,
