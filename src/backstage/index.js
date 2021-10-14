@@ -29,7 +29,6 @@ class Backstage extends React.Component {
 
         httpRequest.onreadystatechange = function () {
             if (httpRequest.readyState === 4 && httpRequest.status === 200) {
-                const json = httpRequest.responseText;
                 thisPer.setState({
                     alertValue: "success"
                 });
@@ -133,7 +132,7 @@ class Backstage extends React.Component {
                             </TabPane>
                             <TabPane classname="tab-item" value="update" tab="修改" key="3">
                                 <div className="form-container">
-                                    <UpdateForm onSubmit={this.onUpdateGift} />
+                                    <UpdateForm onSubmit={this.onUpdateGift} giftList={giftList} />
                                 </div>
                             </TabPane>
                         </Tabs>
