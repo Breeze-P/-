@@ -205,6 +205,15 @@
     grid-area: b;
 }
 
+.backstage-load {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 50px;
+    border-radius: 5px;
+    background-color: #fadd95;
+}
+
 .message-wrap {
     text-align: center;
     position: fixed;
