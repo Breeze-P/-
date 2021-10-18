@@ -85,7 +85,7 @@ class GamePlayer extends PureComponent {
         ).then(
             data => {
                 this.setState({
-                    giftList: data.giftList,
+                    giftList: data.giftList.slice(0, 8),
                     endStopIndex: data.endStopIndex
                 });
             }

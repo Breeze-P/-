@@ -5,6 +5,7 @@ import { Layout, Alert, Tabs } from 'antd';
 import AddForm from "./commponents/AddForm";
 import DeleteForm from "./commponents/DeleteForm";
 import UpdateForm from "./commponents/UpdateForm";
+import {Link} from "react-router-dom";
 
 const { Header, Content, Footer } = Layout;
 const { TabPane } = Tabs;
@@ -105,6 +106,11 @@ class Backstage extends React.Component {
             <Layout style={{ minHeight: '100vh' }}>
                 <Layout className="site-layout">
                     <Header className="site-layout-background" style={{ padding: 0 }}>
+                        <Link to='/'>
+                            <div className='go-back'>
+                                Go Back
+                            </div>
+                        </Link>
                         <h1 className="backstage-title">
                             掘金九宫格抽奖控制台
                         </h1>

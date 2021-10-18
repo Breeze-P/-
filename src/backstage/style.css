@@ -3,6 +3,14 @@
     src: url("ZCOOLXiaoWei-Regular.ttf");
 }
 
+.go-back {
+    position: absolute;
+    font-family: myFont, serif;
+    width: 100px;
+    height: 50px;
+    color: #282c34;
+}
+
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
